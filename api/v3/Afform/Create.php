@@ -45,14 +45,14 @@ function civicrm_api3_afform_create($params) {
   }
 
   // Create or update meta.json.
-  $orig = civicrm_api('afform', 'get', ['name' => $name, 'sequential' => 1]);
-  if (is_array($orig['values'][0])) {
+  $orig = civicrm_api3('afform', 'get', ['name' => $name, 'sequential' => 1]);
+  if (isset($orig['values'][0])) {
     $meta = _afform_fields_filter(array_merge($orig['values'][0], $updates));
   }
   else {
     $meta = $updates;
   }
-  unset($meta['definition']);
+  unset($meta['layout']);
   unset($meta['name']);
   if (!empty($meta)) {
     $metaPath = $scanner->createSiteLocalPath($name, CRM_Afform_AfformScanner::METADATA_FILE);
@@ -61,6 +61,9 @@ function civicrm_api3_afform_create($params) {
     file_put_contents($metaPath, json_encode($meta, JSON_PRETTY_PRINT));
     // FIXME check for writability then success. Report errors.
   }
+
+  // We may have changed list of files covered by the cache.
+  $scanner->clear();
 
   // FIXME if `server_route` changes, then flush the menu cache.
   // FIXME if asset-caching is enabled, then flush the asset cache.
