@@ -1,5 +1,3 @@
-{literal}
-  <div ng-app="crmApp">
-    <form ng-view></form>
-  </div>
-{/literal}
+<div ng-app="afformStandalone">
+  <form {$afformName}="{ldelim}{rdelim}"></form>
+</div>

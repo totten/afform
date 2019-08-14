@@ -14,5 +14,5 @@ return [
     'ang/afformStandalone',
   ],
   'settings' => [],
-  'requires' => ['ngRoute'],
+  'requires' => [],
 ];

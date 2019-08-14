@@ -9,14 +9,11 @@
         ctrl: '@'
       },
       link: {
-        pre: function($scope, $el, $attr) {
-
-        },
         post: function($scope, $el, $attr) {
           $scope.myCtrl.loadData();
         }
       },
-      controller: function($scope, $routeParams, crmApi4) {
+      controller: function($scope, crmApi4) {
         var schema = {}, data = {};
 
         $scope.$parent[$scope.ctrl] = this;
@@ -42,8 +39,8 @@
         this.loadData = function() {
           var apiCalls = {};
           _.each(schema, function(entity, entityName) {
-            if ($routeParams[entityName]) {
-              var id = $routeParams[entityName];
+            if ($scope.$parent.routeParams && $scope.$parent.routeParams[entityName]) {
+              var id = $scope.$parent.routeParams[entityName];
               apiCalls[entityName] = [entity.type, 'get', {select: entity.fields, where: [['id', '=', id]]}, 0];
             }
           });
