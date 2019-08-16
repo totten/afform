@@ -26,7 +26,7 @@ Let's say we want `civicrm/hello-world` to become a basic "View Contact" page. A
 would request a URL like:
 
 ```
-http://dmaster.localhost/civicrm/hello-world/#/?cid=123
+http://dmaster.localhost/civicrm/hello-world?cid=123
 ```
 
 How do we use the `cid` to get information about the contact?  Update `helloWorld.aff.html` to fetch data with
