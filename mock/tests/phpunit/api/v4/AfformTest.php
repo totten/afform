@@ -1,8 +1,5 @@
 <?php
 
-use Civi\Test\HeadlessInterface;
-use Civi\Test\TransactionalInterface;
-
 /**
  * Afform.Get API Test Case
  * This is a generic test class implemented with PHPUnit.
@@ -66,13 +63,16 @@ class api_v4_AfformTest extends api_v4_AfformTestCase {
   public function getFormatExamples() {
     $es = [];
 
-    $asHtml = '<strong>New text!</strong>';
-    $asArray = ['#tag' => 'strong', '#children' => ['New text!']];
-
-    $es[] = ['fakelibBareFile', 'html', $asHtml, 'array', $asArray];
-    $es[] = ['fakelibBareFile', 'array', $asArray, 'html', $asHtml];
-    $es[] = ['fakelibBareFile', 'html', $asHtml, 'html', $asHtml];
-    $es[] = ['fakelibBareFile', 'array', $asArray, 'array', $asArray];
+    foreach (['apple', 'banana'] as $exampleName) {
+      $exampleFile = '/formatExamples/' . $exampleName . '.php';
+      $example = require __DIR__ . $exampleFile;
+      $formats = ['html', 'shallow', 'deep'];
+      foreach ($formats as $updateFormat) {
+        foreach ($formats as $readFormat) {
+          $es[] = ['fakelibBareFile', $updateFormat, $example[$updateFormat], $readFormat, $example[$readFormat], $exampleFile];
+        }
+      }
+    }
 
     return $es;
   }
@@ -92,9 +92,11 @@ class api_v4_AfformTest extends api_v4_AfformTestCase {
    *   'html' or 'array'
    * @param mixed $readLayout
    *   The value that we expect to read.
+   * @param string $exampleName
+   *   (For debug messages) A symbolic name of the example data-set being tested.
    * @dataProvider getFormatExamples
    */
-  public function testUpdateAndGetFormat($directiveName, $updateFormat, $updateLayout, $readFormat, $readLayout) {
+  public function testUpdateAndGetFormat($directiveName, $updateFormat, $updateLayout, $readFormat, $readLayout, $exampleName) {
     Civi\Api4\Afform::revert()->addWhere('name', '=', $directiveName)->execute();
 
     Civi\Api4\Afform::update()
@@ -108,7 +110,7 @@ class api_v4_AfformTest extends api_v4_AfformTestCase {
       ->setLayoutFormat($readFormat)
       ->execute();
 
-    $this->assertEquals($readLayout, $result[0]['layout']);
+    $this->assertEquals($readLayout, $result[0]['layout'], "Based on \"$exampleName\", writing content as \"$updateFormat\" and reading back as \"$readFormat\".");
 
     Civi\Api4\Afform::revert()->addWhere('name', '=', $directiveName)->execute();
   }
