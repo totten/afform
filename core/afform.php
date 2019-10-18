@@ -2,6 +2,7 @@
 
 require_once 'afform.civix.php';
 use CRM_Afform_ExtensionUtil as E;
+use Civi\Api4\Action\Afform\Submit;
 
 function _afform_fields() {
   return ['name', 'title', 'description', 'requires', 'layout', 'server_route', 'client_route', 'is_public'];
@@ -49,6 +50,8 @@ function afform_civicrm_container($container) {
  */
 function afform_civicrm_config(&$config) {
   _afform_civix_civicrm_config($config);
+  // Civi::dispatcher()->addListener(Submit::EVENT_NAME, [Submit::class, 'processContacts'], -500);
+  Civi::dispatcher()->addListener(Submit::EVENT_NAME, [Submit::class, 'processGenericEntity'], -1000);
 }
 
 /**
@@ -181,8 +184,8 @@ function afform_civicrm_alterAngular($angular) {
 
       foreach (pq('af-field', $doc) as $afField) {
         /** @var DOMElement $afField */
-        $fieldName = $afField->getAttribute('field-name');
-        $entityName = pq($afField)->parent('[af-name]')->attr('af-name');
+        $fieldName = $afField->getAttribute('name');
+        $entityName = pq($afField)->parent('af-fieldset[model]')->attr('model');
         if (!preg_match(';^[a-zA-Z0-9\_\-\. ]+$;', $entityName)) {
           throw new \CRM_Core_Exception("Cannot process $path: malformed entity name ($entityName)");
         }
@@ -194,7 +197,7 @@ function afform_civicrm_alterAngular($angular) {
         ]);
         // Merge field definition data with whatever's already in the markup
         foreach ($getFields as $field) {
-          $existingFieldDefn = trim(pq($afField)->attr('field-defn') ?: '');
+          $existingFieldDefn = trim(pq($afField)->attr('defn') ?: '');
           if ($existingFieldDefn && $existingFieldDefn[0] != '{') {
             // If it's not an object, don't mess with it.
             continue;
@@ -205,7 +208,7 @@ function afform_civicrm_alterAngular($angular) {
           if ($existingFieldDefn) {
             $field = array_merge($field, CRM_Utils_JS::getRawProps($existingFieldDefn));
           }
-          pq($afField)->attr('field-defn', CRM_Utils_JS::writeObject($field));
+          pq($afField)->attr('defn', CRM_Utils_JS::writeObject($field));
         }
       }
     });
@@ -214,9 +217,9 @@ function afform_civicrm_alterAngular($angular) {
 
 function _afform_getMetadata(phpQueryObject $doc) {
   $entities = [];
-  foreach ($doc->find('af-model-prop') as $afmModelProp) {
-    $entities[$afmModelProp->getAttribute('af-name')] = [
-      'type' => $afmModelProp->getAttribute('af-type'),
+  foreach ($doc->find('af-entity') as $afmModelProp) {
+    $entities[$afmModelProp->getAttribute('name')] = [
+      'type' => $afmModelProp->getAttribute('type'),
     ];
   }
   return $entities;

@@ -21,17 +21,17 @@ class CRM_Afform_ArrayHtml {
     '*' => [
       '*' => 'text',
     ],
-    'af-model-prop' => [
-      'af-name' => 'text',
-      'af-entity' => 'text',
-      'af-data' => 'js',
+    'af-entity' => [
+      'name' => 'text',
+      'type' => 'text',
+      'data' => 'js',
     ],
     'af-field' => [
-      'field-name' => 'text',
-      'field-defn' => 'js',
+      'name' => 'text',
+      'defn' => 'js',
     ],
-    'af-model' => [
-      'af-name' => 'text',
+    'af-fieldset' => [
+      'model' => 'text',
     ],
   ];
 
@@ -158,9 +158,9 @@ class CRM_Afform_ArrayHtml {
    * Determine the type of data that is stored in an attribute.
    *
    * @param string $tag
-   *   Ex: 'af-model-prop'
+   *   Ex: 'af-entity'
    * @param string $attrName
-   *   Ex: 'af-name'
+   *   Ex: 'label'
    * @return string
    *   Ex: 'text' or 'js'
    */
